@@ -3,6 +3,9 @@ import json
 from machine import Pin
 from time import sleep
 
+
+temp, hum, temp_f = 0, 0, 0
+
 def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     if led.value() == 1:
         gpio_state = "ON"
@@ -91,21 +94,23 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     return html
 
 
-def read_sensor():
+def update_dht11_data():
     dht11.measure()
     temp = dht11.temperature()
     hum = dht11.humidity()
     temp_f = temp * (9/5) + 32.0
-    return temp, hum, temp_f
+    print(temp, hum, temp_f)
+    sleep(2.1)
 
-
-def api_response(temp, hum, temp_f):
+def api_response():
     data = {
-        'temp': temp,
-        'hum': hum,
-        'temp_f': temp_f
+        'temp': dht11.temperature(),
+        'hum': dht11.humidity(),
+        'temp_f': dht11.temperature() * (9/5) + 32.0
     }
+
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
+
 
 # Web Server 主程式
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -114,7 +119,10 @@ s.bind(('', 80))
 s.listen(5)  # 監聽 80 port
 
 
+
 while True:
+    update_dht11_data()
+
     conn, addr = s.accept()  # 當網頁端連接時
     print('------------------------------')
     print('客戶端 %s 已連線' % str(addr))
@@ -136,27 +144,28 @@ while True:
 
     if request.find('/api/get-temp-hum') == 6:
         print('asdasdasdsadasdsa')
-        temp, hum, temp_f = read_sensor()
-        response = api_response(temp, hum, temp_f)
+        #temp, hum, temp_f = read_sensor()
+        response = api_response()
         conn.send(response)
         conn.close()
         
     else:
-        sleep(2)
-        sensor = dht11
-        sensor.measure()
-        temp = sensor.temperature()
-        hum = sensor.humidity()
-        temp_f = temp * (9/5) + 32.0
-        print('Temperature: %3.1f C' %temp)
-        print('Temperature: %3.1f F' %temp_f)
-        print('Humidity: %3.1f %%' %hum)
+        pass
+        #sensor = dht11
+        #sensor.measure()
+        #temp = sensor.temperature()
+        #hum = sensor.humidity()
+        #temp_f = temp * (9/5) + 32.0
+        #print('Temperature: %3.1f C' %temp)
+        #print('Temperature: %3.1f F' %temp_f)
+        #print('Humidity: %3.1f %%' %hum)
 
 
-        response = web_page(temp,hum,temp_f) # 顯示網頁
-        conn.send('HTTP/1.1 200 OK\n')
-        conn.send('Content-Type: text/html\n')
-        conn.send('Connection: close\n\n')
-        conn.sendall(response) # return 網頁
-        conn.close()
+        #response = web_page(temp,hum,temp_f) # 顯示網頁
+        #conn.send('HTTP/1.1 200 OK\n')
+        #conn.send('Content-Type: text/html\n')
+        #conn.send('Connection: close\n\n')
+        #conn.sendall(response) # return 網頁
+        #conn.close()
+
 
