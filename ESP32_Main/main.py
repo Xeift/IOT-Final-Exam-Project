@@ -1,7 +1,7 @@
+import dht
+import json
 from machine import Pin
 from time import sleep
-import dht
-
 
 def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     if led.value() == 1:
@@ -91,6 +91,22 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     return html
 
 
+def read_sensor():
+    dht11.measure()
+    temp = dht11.temperature()
+    hum = dht11.humidity()
+    temp_f = temp * (9/5) + 32.0
+    return temp, hum, temp_f
+
+
+def api_response(temp, hum, temp_f):
+    data = {
+        'temp': temp,
+        'hum': hum,
+        'temp_f': temp_f
+    }
+    return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
+
 # Web Server 主程式
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 新增 SO_REUSEADDR，解決 address in use 的報錯
@@ -109,28 +125,38 @@ while True:
     # print('Content = %s' % request)  # 顯示收到的資料
     led_on = request.find('/?led=on')  # 確定目前 led 燈是否開啟
     led_off = request.find('/?led=off')
+    
     if led_on == 6:  # 如果開啟就顯示 LED ON
         print('LED ON')
         led.value(1)
+        
     if led_off == 6:
         print('LED OFF')
         led.value(0)
 
-    sleep(2)
-    sensor = dht11
-    sensor.measure()
-    temp = sensor.temperature()
-    hum = sensor.humidity()
-    temp_f = temp * (9/5) + 32.0
-    
-    print('Temperature: %3.1f C' % temp)
-    print('Temperature: %3.1f F' % temp_f)
-    print('Humidity: %3.1f %%' % hum)
+    if request.find('/api/get-temp-hum') == 6:
+        print('asdasdasdsadasdsa')
+        temp, hum, temp_f = read_sensor()
+        response = api_response(temp, hum, temp_f)
+        conn.send(response)
+        conn.close()
+        
+    else:
+        sleep(2)
+        sensor = dht11
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+        temp_f = temp * (9/5) + 32.0
+        print('Temperature: %3.1f C' %temp)
+        print('Temperature: %3.1f F' %temp_f)
+        print('Humidity: %3.1f %%' %hum)
 
-    response = web_page(temp, hum, temp_f)  # 顯示網頁
-    conn.send('HTTP/1.1 200 OK\n')
-    conn.send('Content-Type: text/html\n')
-    conn.send('Connection: close\n\n')
-    conn.sendall(response)  # return 網頁
-    conn.close()
+
+        response = web_page(temp,hum,temp_f) # 顯示網頁
+        conn.send('HTTP/1.1 200 OK\n')
+        conn.send('Content-Type: text/html\n')
+        conn.send('Connection: close\n\n')
+        conn.sendall(response) # return 網頁
+        conn.close()
 
