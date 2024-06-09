@@ -7,6 +7,7 @@ TODO:
 5. 即時圖表
 6. CSS 最佳化
 7. 結合 LED 顯示
+✅8. 新增 SO_REUSEADDR，解決 address in use 的報錯
 ''' 
 
 try: import usocket as socket
@@ -30,7 +31,7 @@ password = '13241324'
 
 station = network.WLAN(network.STA_IF)
 
-station.active(True) # 連上 Wi-Fi
+station.active(True)
 station.connect(ssid, password)
 
 print('------------------------------')

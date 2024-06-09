@@ -93,7 +93,7 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
 
 # Web Server 主程式
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 新增 SO_REUSEADDR，解決 address in use 的報錯
 s.bind(('', 80))
 s.listen(5)  # 監聽 80 port
 
