@@ -100,10 +100,13 @@ s.listen(5)  # 監聽 80 port
 
 while True:
     conn, addr = s.accept()  # 當網頁端連接時
-    print('Got a connection from %s' % str(addr))
+    print('------------------------------')
+    print('客戶端 %s 已連線' % str(addr))
+    print('------------------------------\n')
+    
     request = conn.recv(1024)
     request = str(request)
-    print('Content = %s' % request)  # 顯示收到的資料
+    # print('Content = %s' % request)  # 顯示收到的資料
     led_on = request.find('/?led=on')  # 確定目前 led 燈是否開啟
     led_off = request.find('/?led=off')
     if led_on == 6:  # 如果開啟就顯示 LED ON
@@ -130,3 +133,4 @@ while True:
     conn.send('Connection: close\n\n')
     conn.sendall(response)  # return 網頁
     conn.close()
+

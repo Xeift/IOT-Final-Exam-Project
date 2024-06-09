@@ -31,10 +31,11 @@ station = network.WLAN(network.STA_IF)
 station.active(True) # 連上 Wi-Fi
 station.connect(ssid, password)
 
-while station.isconnected() == False: print('WiFi連接中')
-
-print('WiFi連接成功')
+print('------------------------------')
+while station.isconnected() == False: print('Wi-Fi 連接中')
+print('Wi-Fi 連接成功')
 print(station.ifconfig())
+print('------------------------------\n')
 
 led = Pin(13, Pin.OUT) # LED 腳位
 dht11 = dht.DHT11(Pin(14)) # 溫溼度感測器腳位
