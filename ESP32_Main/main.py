@@ -4,8 +4,6 @@ from machine import Pin
 from time import sleep
 
 
-temp, hum, temp_f = 0, 0, 0
-
 def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     if led.value() == 1:
         gpio_state = "ON"
@@ -100,7 +98,7 @@ def update_dht11_data():
     hum = dht11.humidity()
     temp_f = temp * (9/5) + 32.0
     print(temp, hum, temp_f)
-    sleep(2.1)
+    sleep(2.2)
 
 def api_response():
     data = {
@@ -117,55 +115,60 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 新增 SO_REUSEADDR，解決 address in use 的報錯
 s.bind(('', 80))
 s.listen(5)  # 監聽 80 port
-
+s.setblocking(False)  # 設置為非阻塞模式
 
 
 while True:
     update_dht11_data()
-
-    conn, addr = s.accept()  # 當網頁端連接時
-    print('------------------------------')
-    print('客戶端 %s 已連線' % str(addr))
-    print('------------------------------\n')
     
-    request = conn.recv(1024)
-    request = str(request)
+    try:
+        conn, addr = s.accept()  # 當網頁端連接時
+        print('------------------------------')
+        print('客戶端 %s 已連線' % str(addr))
+        print('------------------------------\n')
 
-    led_on = request.find('/?led=on')  # 確定目前 led 燈是否開啟
-    led_off = request.find('/?led=off')
+        request = conn.recv(1024)
+        request = str(request)
+
+        led_on = request.find('/?led=on')  # 確定目前 led 燈是否開啟
+        led_off = request.find('/?led=off')
+
+        if led_on == 6:  # 如果開啟就顯示 LED ON
+            print('LED ON')
+            led.value(1)
+            
+        if led_off == 6:
+            print('LED OFF')
+            led.value(0)
+
+        if request.find('/api/get-temp-hum') == 6:
+            print('asdasdasdsadasdsa')
+            #temp, hum, temp_f = read_sensor()
+            response = api_response()
+            conn.send(response)
+            conn.close()
+            
+        else:
+            temp = dht11.temperature()
+            hum = dht11.humidity()
+            temp_f = temp * (9/5) + 32.0
+            print('Temperature: %3.1f C' %temp)
+            print('Temperature: %3.1f F' %temp_f)
+            print('Humidity: %3.1f %%' %hum)
+
+
+            response = web_page(temp,hum,temp_f) # 顯示網頁
+            conn.send('HTTP/1.1 200 OK\n')
+            conn.send('Content-Type: text/html\n')
+            conn.send('Connection: close\n\n')
+            conn.sendall(response) # return 網頁
+            conn.close()
+            
+    except OSError as e:
+        if e.args[0] == 11:  # EAGAIN, 沒有客戶端連接
+            print('sleep!')
+            sleep(0.1)  # 短暫休眠，避免CPU佔用過高
+            continue
     
-    if led_on == 6:  # 如果開啟就顯示 LED ON
-        print('LED ON')
-        led.value(1)
-        
-    if led_off == 6:
-        print('LED OFF')
-        led.value(0)
-
-    if request.find('/api/get-temp-hum') == 6:
-        print('asdasdasdsadasdsa')
-        #temp, hum, temp_f = read_sensor()
-        response = api_response()
-        conn.send(response)
-        conn.close()
-        
-    else:
-        pass
-        #sensor = dht11
-        #sensor.measure()
-        #temp = sensor.temperature()
-        #hum = sensor.humidity()
-        #temp_f = temp * (9/5) + 32.0
-        #print('Temperature: %3.1f C' %temp)
-        #print('Temperature: %3.1f F' %temp_f)
-        #print('Humidity: %3.1f %%' %hum)
-
-
-        #response = web_page(temp,hum,temp_f) # 顯示網頁
-        #conn.send('HTTP/1.1 200 OK\n')
-        #conn.send('Content-Type: text/html\n')
-        #conn.send('Connection: close\n\n')
-        #conn.sendall(response) # return 網頁
-        #conn.close()
 
 
