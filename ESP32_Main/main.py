@@ -62,8 +62,19 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
                     background-color: #f2f2f2;
                 }
             </style>
-            <scrip>
-              setInterval(updateData, 5000);
+            <script>
+              setInterval(updateData, 2200);
+
+              function updateData() {
+                fetch('http://192.168.242.51/api/get-temp-hum')
+                  .then(response => response.json())
+                  .then(data => {
+                    document.getElementById('temp').innerText = data.temp;
+                    document.getElementById('hum').innerText = data.hum;
+                    document.getElementById('temp_f').innerText = data.temp_f;
+                  })
+                  .catch(error => console.error('Error fetching data:', error));
+              }
             </script>
         </head>
         <body>
@@ -74,22 +85,23 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
             <table>
             <tr>
               <td>Celsius temperature</td>
-              <td>""" + str(temp) + """</td>
-          </tr>
+              <td id="temp">""" + str(temp) + """</td>
+            </tr>
             <tr>
-              <td>Humifity</td>
-              <td>""" + str(hum) + """</td>
-          </tr>
+              <td>Humidity</td>
+              <td id="hum">""" + str(hum) + """</td>
+            </tr>
             <tr>
               <td>Fahrenheit temperature</td>
-              <td>""" + str(temp_f) + """</td>
-          </tr>
-          </table>
+              <td id="temp_f">""" + str(temp_f) + """</td>
+            </tr>
+            </table>
         </body>
     </html>
     """
 
     return html
+
 
 
 def update_dht11_data():
@@ -98,7 +110,7 @@ def update_dht11_data():
     hum = dht11.humidity()
     temp_f = temp * (9/5) + 32.0
     print(temp, hum, temp_f)
-    sleep(2.2)
+    sleep(2.1)
 
 def api_response():
     data = {
@@ -165,14 +177,16 @@ while True:
             conn.close()
             
     except OSError as e:
+        print(e.args[0])
+        
         if e.args[0] == 11:  # EAGAIN, 沒有客戶端連接
             print('sleep!')
-            sleep(0.1)  # 短暫休眠，避免CPU佔用過高
+            sleep(0.001)  # 短暫休眠，避免CPU佔用過高
             continue
-        
-    except ETIMEDOUT as e:
-        print('timeout!')
-        sleep(0.1)  # 短暫休眠，避免CPU佔用過高
-        continue
+
+        elif e.args[0] == 116:  # ETIMEDOUT
+            print('timeout!')
+            sleep(0.001)  # 短暫休眠，避免CPU佔用過高
+            continue
 
 
