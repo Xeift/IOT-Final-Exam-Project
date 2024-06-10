@@ -9,6 +9,7 @@ TODO:
 7. 結合 LED 顯示
 ✅8. 新增 SO_REUSEADDR，解決 address in use 的報錯
 9. Line 機器人控制
+✅10. 改成 UTF-8 編碼，可以正常顯示中文
 ''' 
 
 try: import usocket as socket
