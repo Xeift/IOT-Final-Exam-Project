@@ -4,7 +4,8 @@ from machine import Pin
 from time import sleep
 
 
-def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
+'''    顯示網頁    '''
+def web_page():
     if led.value() == 1:
         gpio_state = "ON"
     else:
@@ -66,7 +67,7 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
               setInterval(updateData, 2200);
 
               function updateData() {
-                fetch('http://192.168.242.51/api/get-temp-hum')
+                fetch(\'http://""" + station.ifconfig()[0] + """/api/get-temp-hum\')
                   .then(response => response.json())
                   .then(data => {
                     document.getElementById('temp').innerText = data.temp;
@@ -103,7 +104,7 @@ def web_page(temp, hum, temp_f):  # 顯示網頁 html 內容
     return html
 
 
-
+'''    更新 DHT11 資料    '''
 def update_dht11_data():
     dht11.measure()
     temp = dht11.temperature()
@@ -112,6 +113,8 @@ def update_dht11_data():
     print(temp, hum, temp_f)
     sleep(2.1)
 
+
+'''    Return DHT11 資料給客戶端    '''
 def api_response():
     data = {
         'temp': dht11.temperature(),
@@ -122,7 +125,7 @@ def api_response():
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
 
 
-# Web Server 主程式
+'''    Web Server 主程式    '''
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # 新增 SO_REUSEADDR，解決 address in use 的報錯
 s.bind(('', 80))
@@ -130,10 +133,12 @@ s.listen(5)  # 監聽 80 port
 s.setblocking(False)  # 設置為非阻塞模式
 
 
+'''    ESP32 主程式    '''
 while True:
-    update_dht11_data()
-    
     try:
+        update_dht11_data()
+    
+
         conn, addr = s.accept()  # 當網頁端連接時
         print('------------------------------')
         print('客戶端 %s 已連線' % str(addr))
@@ -142,51 +147,40 @@ while True:
         request = conn.recv(1024)
         request = str(request)
 
-        led_on = request.find('/?led=on')  # 確定目前 led 燈是否開啟
-        led_off = request.find('/?led=off')
 
-        if led_on == 6:  # 如果開啟就顯示 LED ON
-            print('LED ON')
+        if request.find('/?led=on') == 6:
             led.value(1)
             
-        if led_off == 6:
-            print('LED OFF')
+        elif request.find('/?led=off') == 6:
             led.value(0)
 
-        if request.find('/api/get-temp-hum') == 6:
-            print('asdasdasdsadasdsa')
-            #temp, hum, temp_f = read_sensor()
+        elif request.find('/api/get-temp-hum') == 6: #
             response = api_response()
             conn.send(response)
             conn.close()
             
         else:
             temp = dht11.temperature()
-            hum = dht11.humidity()
             temp_f = temp * (9/5) + 32.0
-            print('Temperature: %3.1f C' %temp)
-            print('Temperature: %3.1f F' %temp_f)
-            print('Humidity: %3.1f %%' %hum)
-
-
-            response = web_page(temp,hum,temp_f) # 顯示網頁
+            hum = dht11.humidity()
+            response = web_page()
             conn.send('HTTP/1.1 200 OK\n')
             conn.send('Content-Type: text/html\n')
             conn.send('Connection: close\n\n')
             conn.sendall(response) # return 網頁
             conn.close()
-            
+
+
+        '''    處理例外情況    '''
     except OSError as e:
-        print(e.args[0])
         
-        if e.args[0] == 11:  # EAGAIN, 沒有客戶端連接
+        if e.args[0] == 11: # EAGAIN，處理沒有客戶端連接時的狀況
             print('sleep!')
-            sleep(0.001)  # 短暫休眠，避免CPU佔用過高
+            sleep(0.001) # 短暫休眠，避免CPU佔用過高
             continue
 
-        elif e.args[0] == 116:  # ETIMEDOUT
+        elif e.args[0] == 116: # ETIMEDOUT，處理 DHT11 讀不到數值時的狀況
             print('timeout!')
-            sleep(0.001)  # 短暫休眠，避免CPU佔用過高
+            sleep(1) # 暫停一下，等待 DHT11 恢復正常
             continue
-
 
