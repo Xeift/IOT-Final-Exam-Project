@@ -169,6 +169,10 @@ while True:
             print('sleep!')
             sleep(0.1)  # 短暫休眠，避免CPU佔用過高
             continue
-    
+        
+    except ETIMEDOUT as e:
+        print('timeout!')
+        sleep(0.1)  # 短暫休眠，避免CPU佔用過高
+        continue
 
 
