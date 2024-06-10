@@ -181,6 +181,6 @@ while True:
 
         elif e.args[0] == 116: # ETIMEDOUT，處理 DHT11 讀不到數值時的狀況
             print('timeout!')
-            sleep(1) # 暫停一下，等待 DHT11 恢復正常
+            sleep(2.1) # 暫停一下，等待 DHT11 恢復正常
             continue
 
