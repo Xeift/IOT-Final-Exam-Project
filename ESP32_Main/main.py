@@ -2,7 +2,11 @@ import dht
 import json
 from machine import Pin
 from time import sleep
+import socket
 
+
+led = Pin(2, Pin.OUT)
+dht11 = dht.DHT11(Pin(14))
 
 
 '''    顯示網頁    '''
@@ -77,7 +81,7 @@ def web_page():
               var labels = [];
               var maxDataPoints = 20;
 
-              setInterval(updateData, 1000);
+              setInterval(updateData, 3000);
 
               function updateData() {
                 fetch('http://""" + station.ifconfig()[0] + """/api/get-temp-hum')
@@ -102,6 +106,15 @@ def web_page():
                     window.humChart.update();
                   })
                   .catch(error => console.error('Error fetching data:', error));
+              }
+
+              function controlLED(state) {
+                fetch('http://""" + station.ifconfig()[0] + """/api/led/' + state)
+                  .then(response => response.json())
+                  .then(data => {
+                    document.getElementById('gpio_state').innerText = data.led_state;
+                  })
+                  .catch(error => console.error('Error controlling LED:', error));
               }
 
               window.onload = function() {
@@ -159,9 +172,9 @@ def web_page():
         </head>
         <body>
             <h1>ESP Web Server</h1>
-            <p>GPIO state: <strong>""" + str(gpio_state) + """</strong></p>
-            <p><a href="/?led=on"><button class="button">ON</button></a></p>
-            <p><a href="/?led=off"><button class="button button2">OFF</button></a></p>
+            <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
+            <p><button class="button" onclick="controlLED('on')">ON</button></p>
+            <p><button class="button button2" onclick="controlLED('off')">OFF</button></p>
             <table>
             <tr>
               <td>Celsius temperature</td>
@@ -208,6 +221,20 @@ def api_response():
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
 
 
+'''    LED 開/關 API 回應    '''
+def led_api_response(state):
+    if state == "on":
+        led.value(1)
+    elif state == "off":
+        led.value(0)
+
+    data = {
+        'led_state': "ON" if led.value() == 1 else "OFF"
+    }
+
+    return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
+
+
 '''    Web Server 主程式    '''
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -229,10 +256,14 @@ while True:
         request = conn.recv(1024)
         request = str(request)
 
-        if request.find('/?led=on') == 6:
-            led.value(1)
-        elif request.find('/?led=off') == 6:
-            led.value(0)
+        if request.find('/api/led/on') == 6:
+            response = led_api_response("on")
+            conn.send(response.encode())
+            conn.close()
+        elif request.find('/api/led/off') == 6:
+            response = led_api_response("off")
+            conn.send(response.encode())
+            conn.close()
         elif request.find('/api/get-temp-hum') == 6:
             response = api_response()
             conn.send(response.encode())
@@ -243,16 +274,18 @@ while True:
             hum = dht11.humidity()
             response = web_page()
             conn.send('HTTP/1.1 200 OK\n'.encode())
-            conn.send('Content-Type: text/html\n'.encode())
+            conn.send('Content-Type: text/html; charset=UTF-8\n'.encode()) # 改成 UTF-8，可以正常顯示中文
             conn.send('Connection: close\n\n'.encode())
             conn.sendall(response.encode())
             conn.close()
 
     except OSError as e:
-        if e.args[0] == 11:
-            sleep(0.001)
+        if e.args[0] == 11: # EAGAIN，處理沒有客戶端連接時的狀況
+            print('sleep!')
+            sleep(0.001) # 短暫休眠，避免CPU佔用過高
             continue
-        elif e.args[0] == 116:
+
+        elif e.args[0] == 116: # ETIMEDOUT，處理 DHT11 讀不到數值時的狀況
             print('timeout!')
-            sleep(2.1)
+            sleep(0.001) # 短暫休眠，等待 DHT11 恢復正常
             continue
