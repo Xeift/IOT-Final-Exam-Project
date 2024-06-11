@@ -69,7 +69,7 @@ std::tuple<String, String, String> getDHT11Data() {
         return std::make_tuple(temp_f_str, hum_str, temp_str);
     }
     else {
-        Serial.print(httpCode);
+        Serial.println(httpCode);
         http.end();
         return std::make_tuple("-1.0", "-1.0", "-1.0");
     }
@@ -84,7 +84,7 @@ void loop() {
     display.print(temp);
     display.print(" C\n");
     display.print(temp_f + " F\n");
-    display.print(hum + "% hum");
+    display.print(hum + "% Hum");
     display.display();
 
     delay(2100);
