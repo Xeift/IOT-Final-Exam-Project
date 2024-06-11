@@ -21,7 +21,7 @@ def web_page():
         <head>
             <title>ESP Web Server</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
-            <link rel="icon" href="data:,">
+            <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/936236816141541408/1249975125290385408/itcnew.png?ex=6669418d&is=6667f00d&hm=2c49a94eabc06b8fffd954c7b1b273e1e623a8b8d04f5db0ac7c63e00da9f681&">
             <style>
                 html {
                     font-family: Helvetica;
@@ -72,6 +72,7 @@ def web_page():
                     margin: 20px auto;
                 }
             </style>
+            
             <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
@@ -107,16 +108,30 @@ def web_page():
                   })
                   .catch(error => console.error('Error fetching data:', error));
               }
+              
+              function controllLEDV2(active) {
+                  var form = document.getElementById('ledForm');
+                  var formData = new FormData(form);
+                  var r = formData.get('red');
+                  var g = formData.get('green');
+                  var b = formData.get('blue');
 
-              function controlLED(state) {
-                fetch('http://""" + station.ifconfig()[0] + """/api/led/' + state)
-                  .then(response => response.json())
-                  .then(data => {
-                    document.getElementById('gpio_state').innerText = data.led_state;
-                  })
-                  .catch(error => console.error('Error controlling LED:', error));
+                  if (!active) {
+                      //r, g, b = 0, 0, 0;
+                      r = 0;
+                      g = 0;
+                      b = 0;
+                  }
+                  console.log(r, g, b);
+                  
+                  fetch(`http://""" + station.ifconfig()[0] + """/api/led?r=${r}&g=${g}&b=${b}`)
+                      .then(response => response.json())
+                      .then(data => {
+                          console.log(data);
+                      })
+                      .catch(error => console.error('Error controlling LED:', error));
               }
-
+    
               window.onload = function() {
                 var ctxTemp = document.getElementById('tempChart').getContext('2d');
                 var ctxHum = document.getElementById('humChart').getContext('2d');
@@ -125,7 +140,7 @@ def web_page():
                   data: {
                     labels: labels,
                     datasets: [{
-                      label: 'Temperature (°C)',
+                      label: '溫度（°C）',
                       data: tempData,
                       borderColor: 'rgba(255, 99, 132, 1)',
                       backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -149,7 +164,7 @@ def web_page():
                   data: {
                     labels: labels,
                     datasets: [{
-                      label: 'Humidity (%)',
+                      label: '溼度（%）',
                       data: humData,
                       borderColor: 'rgba(54, 162, 235, 1)',
                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -173,19 +188,26 @@ def web_page():
         <body>
             <h1>ESP Web Server</h1>
             <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
-            <p><button class="button" onclick="controlLED('on')">ON</button></p>
-            <p><button class="button button2" onclick="controlLED('off')">OFF</button></p>
+            <p><button class="button" onclick="controllLEDV2(true)">ON</button></p>
+            <p><button class="button button2" onclick="controllLEDV2(false)">OFF</button></p>
+            
+            <form id="ledForm">
+                R: <input type="range" min="0" max="1023" name="red"><br>
+                G: <input type="range" min="0" max="1023" name="green"><br>
+                B: <input type="range" min="0" max="1023" name="blue"><br>
+            </form>
+            
             <table>
             <tr>
-              <td>Celsius temperature</td>
+              <td>攝氏溫度</td>
               <td id="temp">""" + str(temp) + """</td>
             </tr>
             <tr>
-              <td>Humidity</td>
+              <td>溼度</td>
               <td id="hum">""" + str(hum) + """</td>
             </tr>
             <tr>
-              <td>Fahrenheit temperature</td>
+              <td>華氏溫度</td>
               <td id="temp_f">""" + str(temp_f) + """</td>
             </tr>
             </table>
@@ -221,15 +243,14 @@ def api_response():
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
 
 
-'''    LED 開/關 API 回應    '''
-def led_api_response(state):
-    if state == "on":
-        led.value(1)
-    elif state == "off":
-        led.value(0)
+'''    LED API 回應    '''
+def led_api_response(r, g, b):
+    red.duty(r)
+    green.duty(g)
+    blue.duty(b)
 
     data = {
-        'led_state': "ON" if led.value() == 1 else "OFF"
+        'Success': 'True'
     }
 
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
@@ -253,15 +274,24 @@ while True:
         print('客戶端 %s 已連線' % str(addr))
         print('------------------------------\n')
 
+
+
         request = conn.recv(1024)
         request = str(request)
 
-        if request.find('/api/led/on') == 6:
-            response = led_api_response("on")
-            conn.send(response.encode())
-            conn.close()
-        elif request.find('/api/led/off') == 6:
-            response = led_api_response("off")
+        if request.find('/api/led') == 6:
+            # TODO: 解析參數
+            try:
+                params = request.split('?')[1].split(' ')[0]
+                params_dict = dict(x.split('=') for x in params.split('&'))
+                r = int(params_dict.get('r', 0))
+                g = int(params_dict.get('g', 0))
+                b = int(params_dict.get('b', 0))
+                response = led_api_response(r, g, b)
+            except Exception as e:
+                response = 'HTTP/1.1 400 Bad Request\n\n' + str(e)
+                
+            response = led_api_response(r, g, b)
             conn.send(response.encode())
             conn.close()
         elif request.find('/api/get-temp-hum') == 6:

@@ -1,6 +1,6 @@
 try: import usocket as socket
 except: import socket
-from machine import Pin
+from machine import Pin, PWM
 import network
 import time
 import esp
@@ -30,4 +30,6 @@ print('------------------------------\n')
 
 led = Pin(13, Pin.OUT) # LED 腳位
 dht11 = dht.DHT11(Pin(14)) # 溫溼度感測器腳位
-
+red = PWM(Pin(25), freq=1000) # PWM LED 腳位
+green = PWM(Pin(26), freq=1000)
+blue = PWM(Pin(27), freq=1000)
