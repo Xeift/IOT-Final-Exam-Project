@@ -188,8 +188,10 @@ def web_page():
         <body>
             <h1>ESP Web Server</h1>
             <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
-            <p><button class="button" onclick="controllLEDV2(true)">ON</button></p>
-            <p><button class="button button2" onclick="controllLEDV2(false)">OFF</button></p>
+
+            <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
+            <span><button class="button" onclick="controllLEDV2(true)">ON</button></span>
+            <span><button class="button button2" onclick="controllLEDV2(false)">OFF</button></span>
             
             <form id="ledForm">
                 R: <input type="range" min="0" max="1023" name="red"><br>
