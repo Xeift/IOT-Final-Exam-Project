@@ -1,17 +1,3 @@
-'''
-TODO:
-✅1. 在 ESP32 上新增 API，透過 API 將即時資訊顯示在眼鏡上
-✅2. 網頁上每 2 秒自動更新溫溼度
-3. 網頁新增淺色/深色模式切換按鈕
-4. 記錄溫溼度並導出成 excel
-✅5. 即時圖表
-6. CSS 最佳化
-7. 結合 LED 顯示
-✅8. 新增 SO_REUSEADDR，解決 address in use 的報錯
-9. Line 機器人控制
-✅10. 改成 UTF-8 編碼，可以正常顯示中文
-''' 
-
 try: import usocket as socket
 except: import socket
 from machine import Pin
