@@ -362,7 +362,6 @@ while True:
         request = str(request)
 
         if request.find('/api/led') == 6:
-            # TODO: 解析參數
             try:
                 params = request.split('?')[1].split(' ')[0]
                 params_dict = dict(x.split('=') for x in params.split('&'))
