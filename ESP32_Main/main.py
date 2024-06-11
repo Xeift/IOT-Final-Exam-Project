@@ -17,77 +17,124 @@ def web_page():
         gpio_state = "OFF"
 
     html = """
-    <html>
-        <head>
-            <title>ESP Web Server</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/936236816141541408/1249975125290385408/itcnew.png?ex=6669418d&is=6667f00d&hm=2c49a94eabc06b8fffd954c7b1b273e1e623a8b8d04f5db0ac7c63e00da9f681&">
-            <style>
-                html {
-                    font-family: Helvetica;
-                    display: inline-block;
-                    margin: 0px auto;
-                    text-align: center;
-                }
-                h1 {
-                    color: #0F3376;
-                    padding: 2vh;
-                }
-                p {
-                    font-size: 1.5rem;
-                }
-                .button {
-                    display: inline-block;
-                    background-color: #e7bd3b;
-                    border: none;
-                    border-radius: 4px;
-                    color: white;
-                    padding: 16px 40px;
-                    text-decoration: none;
-                    font-size: 30px;
-                    margin: 2px;
-                    cursor: pointer;
-                }
-                .button2 {
-                    background-color: #4286f4;
-                }
-                table {
-                    margin: 20px auto;
-                    border-collapse: collapse;
-                    width: 50%;
-                    font-size: 1.2rem;
-                }
-                table, th, td {
-                    border: 1px solid black;
-                }
-                th, td {
-                    padding: 12px;
-                    text-align: center;
-                }
-                th {
-                    background-color: #f2f2f2;
-                }
-                #chartContainer {
-                    width: 80%;
-                    margin: 20px auto;
-                }
-            </style>
-            
-            <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
-            <script>
-              var tempData = [];
-              var humData = [];
-              var labels = [];
-              var maxDataPoints = 20;
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>ESP Web Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/936236816141541408/1249975125290385408/itcnew.png?ex=6669418d&is=6667f00d&hm=2c49a94eabc06b8fffd954c7b1b273e1e623a8b8d04f5db0ac7c63e00da9f681&">
+    <style>
+        html {
+            font-family: Helvetica, Arial, sans-serif;
+            display: inline-block;
+            margin: 0px auto;
+            text-align: center;
+            background-color: #2E3440; /* Nord Polar Night */
+            color: #D8DEE9; /* Nord Snow Storm */
+        }
+        h1 {
+            color: #88C0D0; /* Nord Frost */
+            padding: 2vh;
+        }
+        p {
+            font-size: 1.5rem;
+        }
+        .button {
+            display: inline-block;
+            background-color: #5E81AC; /* Nord Frost */
+            border: none;
+            border-radius: 4px;
+            color: #ECEFF4; /* Nord Snow Storm */
+            padding: 16px 40px;
+            text-decoration: none;
+            font-size: 30px;
+            margin: 2px;
+            cursor: pointer;
+        }
+        .button2 {
+            background-color: #BF616A; /* Nord Red */
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 50%;
+            font-size: 1.2rem;
+            color: #D8DEE9; /* Nord Snow Storm */
+        }
+        table, th, td {
+            border: 1px solid #4C566A; /* Nord Polar Night */
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #434C5E; /* Nord Polar Night */
+        }
+        #chartContainer {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            justify-content: space-around;
+        }
+        .chart {
+            width: 45%;
+        }
+        /* 美化 range 輸入元素 */
+        .slider {
+            appearance: none;
+            width: 80%;
+            height: 15px;
+            background: #4C566A; /* Nord Polar Night */
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 5px;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #88C0D0; /* Nord Frost */
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #88C0D0; /* Nord Frost */
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .slider::-ms-thumb {
+            width: 25px;
+            height: 25px;
+            background: #88C0D0; /* Nord Frost */
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+    <script>
+        var tempData = [];
+        var humData = [];
+        var labels = [];
+        var maxDataPoints = 20;
 
-              setInterval(updateData, 3000);
+        setInterval(updateData, 3000);
 
-              function updateData() {
-                fetch('http://""" + station.ifconfig()[0] + """/api/get-temp-hum')
-                  .then(response => response.json())
-                  .then(data => {
+        function updateData() {
+            fetch('http://""" + station.ifconfig()[0] + """/api/get-temp-hum')
+                .then(response => response.json())
+                .then(data => {
                     document.getElementById('temp').innerText = data.temp;
                     document.getElementById('hum').innerText = data.hum;
                     document.getElementById('temp_f').innerText = data.temp_f;
@@ -98,126 +145,146 @@ def web_page():
                     humData.push(data.hum);
 
                     if (labels.length > maxDataPoints) {
-                      labels.shift();
-                      tempData.shift();
-                      humData.shift();
+                        labels.shift();
+                        tempData.shift();
+                        humData.shift();
                     }
 
                     window.tempChart.update();
                     window.humChart.update();
-                  })
-                  .catch(error => console.error('Error fetching data:', error));
-              }
-              
-              function controllLEDV2(active) {
-                  var form = document.getElementById('ledForm');
-                  var formData = new FormData(form);
-                  var r = formData.get('red');
-                  var g = formData.get('green');
-                  var b = formData.get('blue');
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
 
-                  if (!active) {
-                      //r, g, b = 0, 0, 0;
-                      r = 0;
-                      g = 0;
-                      b = 0;
-                  }
-                  console.log(r, g, b);
-                  
-                  fetch(`http://""" + station.ifconfig()[0] + """/api/led?r=${r}&g=${g}&b=${b}`)
-                      .then(response => response.json())
-                      .then(data => {
-                          console.log(data);
-                      })
-                      .catch(error => console.error('Error controlling LED:', error));
-              }
-    
-              window.onload = function() {
-                var ctxTemp = document.getElementById('tempChart').getContext('2d');
-                var ctxHum = document.getElementById('humChart').getContext('2d');
-                window.tempChart = new Chart(ctxTemp, {
-                  type: 'line',
-                  data: {
+        function controllLEDV2(active) {
+            var form = document.getElementById('ledForm');
+            var formData = new FormData(form);
+            var r = formData.get('red');
+            var g = formData.get('green');
+            var b = formData.get('blue');
+
+            if (!active) {
+                r = 0;
+                g = 0;
+                b = 0;
+            }
+            console.log(r, g, b);
+
+            fetch(`http://""" + station.ifconfig()[0] + """/api/led?r=${r}&g=${g}&b=${b}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.error('Error controlling LED:', error));
+        }
+
+        window.onload = function() {
+            var ctxTemp = document.getElementById('tempChart').getContext('2d');
+            var ctxHum = document.getElementById('humChart').getContext('2d');
+            window.tempChart = new Chart(ctxTemp, {
+                type: 'line',
+                data: {
                     labels: labels,
                     datasets: [{
-                      label: '溫度（°C）',
-                      data: tempData,
-                      borderColor: 'rgba(255, 99, 132, 1)',
-                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                      fill: true
+                        label: '溫度（°C）',
+                        data: tempData,
+                        borderColor: '#BF616A', /* Nord Red */
+                        backgroundColor: 'rgba(191, 97, 106, 0.2)',
+                        fill: true
                     }]
-                  },
-                  options: {
+                },
+                options: {
                     scales: {
-                      x: {
-                        type: 'time',
-                        time: {
-                          unit: 'second'
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'second'
+                            },
+                            grid: {
+                                color: '#4C566A' /* Nord Polar Night */
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#4C566A' /* Nord Polar Night */
+                            }
                         }
-                      }
                     }
-                  }
-                });
+                }
+            });
 
-                window.humChart = new Chart(ctxHum, {
-                  type: 'line',
-                  data: {
+            window.humChart = new Chart(ctxHum, {
+                type: 'line',
+                data: {
                     labels: labels,
                     datasets: [{
-                      label: '溼度（%）',
-                      data: humData,
-                      borderColor: 'rgba(54, 162, 235, 1)',
-                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                      fill: true
+                        label: '溼度（%）',
+                        data: humData,
+                        borderColor: '#A3BE8C', /* Nord Green */
+                        backgroundColor: 'rgba(163, 190, 140, 0.2)',
+                        fill: true
                     }]
-                  },
-                  options: {
+                },
+                options: {
                     scales: {
-                      x: {
-                        type: 'time',
-                        time: {
-                          unit: 'second'
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'second'
+                            },
+                            grid: {
+                                color: '#4C566A' /* Nord Polar Night */
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: '#4C566A' /* Nord Polar Night */
+                            }
                         }
-                      }
                     }
-                  }
-                });
-              };
-            </script>
-        </head>
-        <body>
-            <h1>ESP Web Server</h1>
-            <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
+                }
+            });
+        };
+    </script>
+</head>
+<body>
+    <h1>ESP Web Server</h1>
+    <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
 
-            <span><button class="button" onclick="controllLEDV2(true)">ON</button></span>
-            <span><button class="button button2" onclick="controllLEDV2(false)">OFF</button></span>
-            
-            <form id="ledForm">
-                R: <input type="range" min="0" max="1023" name="red"><br>
-                G: <input type="range" min="0" max="1023" name="green"><br>
-                B: <input type="range" min="0" max="1023" name="blue"><br>
-            </form>
-            
-            <table>
-            <tr>
-              <td>攝氏溫度</td>
-              <td id="temp">""" + str(temp) + """</td>
-            </tr>
-            <tr>
-              <td>溼度</td>
-              <td id="hum">""" + str(hum) + """</td>
-            </tr>
-            <tr>
-              <td>華氏溫度</td>
-              <td id="temp_f">""" + str(temp_f) + """</td>
-            </tr>
-            </table>
-            <div id="chartContainer">
-                <canvas id="tempChart"></canvas>
-                <canvas id="humChart"></canvas>
-            </div>
-        </body>
-    </html>
+    <span><button class="button" onclick="controllLEDV2(true)">ON</button></span>
+    <span><button class="button button2" onclick="controllLEDV2(false)">OFF</button></span>
+
+    <form id="ledForm">
+        R: <input type="range" min="0" max="1023" name="red" class="slider"><br>
+        G: <input type="range" min="0" max="1023" name="green" class="slider"><br>
+        B: <input type="range" min="0" max="1023" name="blue" class="slider"><br>
+    </form>
+
+    <table>
+    <tr>
+        <td>攝氏溫度</td>
+        <td id="temp">""" + str(temp) + """</td>
+    </tr>
+    <tr>
+        <td>溼度</td>
+        <td id="hum">""" + str(hum) + """</td>
+    </tr>
+    <tr>
+        <td>華氏溫度</td>
+        <td id="temp_f">""" + str(temp_f) + """</td>
+    </tr>
+    </table>
+    <div id="chartContainer">
+        <div class="chart">
+            <canvas id="tempChart"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="humChart"></canvas>
+        </div>
+    </div>
+</body>
+</html>
+
     """
 
     return html
