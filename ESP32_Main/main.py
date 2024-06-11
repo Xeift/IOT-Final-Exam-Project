@@ -17,6 +17,7 @@ def web_page():
         gpio_state = "OFF"
 
     html = """
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -48,7 +49,7 @@ def web_page():
             padding: 16px 40px;
             text-decoration: none;
             font-size: 30px;
-            margin: 2px;
+            margin: 10px;
             cursor: pointer;
         }
         .button2 {
@@ -90,6 +91,7 @@ def web_page():
             opacity: 0.7;
             transition: opacity .2s;
             border-radius: 5px;
+            margin: 10px 0;
         }
         .slider:hover {
             opacity: 1;
@@ -119,6 +121,10 @@ def web_page():
             border: none;
             border-radius: 4px;
         }
+        .icon {
+            margin-right: 10px;
+            vertical-align: middle;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -135,9 +141,9 @@ def web_page():
             fetch('http://""" + station.ifconfig()[0] + """/api/get-temp-hum')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('temp').innerText = data.temp;
-                    document.getElementById('hum').innerText = data.hum;
-                    document.getElementById('temp_f').innerText = data.temp_f;
+                    document.getElementById('temp').innerText = `${data.temp} °C`;
+                    document.getElementById('temp_f').innerText = `${data.temp_f} °F`;
+                    document.getElementById('hum').innerText = `${data.hum} %`;
 
                     var now = new Date();
                     labels.push(now);
@@ -251,27 +257,35 @@ def web_page():
     <h1>ESP Web Server</h1>
     <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
 
-    <span><button class="button" onclick="controllLEDV2(true)">ON</button></span>
-    <span><button class="button button2" onclick="controllLEDV2(false)">OFF</button></span>
+    <div>
+        <span><button class="button" onclick="controllLEDV2(true)"><img src="https://img.icons8.com/ios-filled/50/ffffff/light-on.png" class="icon">ON</button></span>
+        <span><button class="button button2" onclick="controllLEDV2(false)"><img src="https://img.icons8.com/ios-filled/50/ffffff/light-off.png" class="icon">OFF</button></span>
+    </div>
 
     <form id="ledForm">
-        R: <input type="range" min="0" max="1023" name="red" class="slider"><br>
-        G: <input type="range" min="0" max="1023" name="green" class="slider"><br>
-        B: <input type="range" min="0" max="1023" name="blue" class="slider"><br>
+        <div>
+            R: <input type="range" min="0" max="1023" name="red" class="slider"><br>
+        </div>
+        <div>
+            G: <input type="range" min="0" max="1023" name="green" class="slider"><br>
+        </div>
+        <div>
+            B: <input type="range" min="0" max="1023" name="blue" class="slider"><br>
+        </div>
     </form>
 
     <table>
     <tr>
         <td>攝氏溫度</td>
-        <td id="temp">""" + str(temp) + """</td>
-    </tr>
-    <tr>
-        <td>溼度</td>
-        <td id="hum">""" + str(hum) + """</td>
+        <td id="temp">""" + str(temp) + """ °C</td>
     </tr>
     <tr>
         <td>華氏溫度</td>
-        <td id="temp_f">""" + str(temp_f) + """</td>
+        <td id="temp_f">""" + str(temp_f) + """ °F</td>
+    </tr>
+    <tr>
+        <td>溼度</td>
+        <td id="hum">""" + str(hum) + """ %</td>
     </tr>
     </table>
     <div id="chartContainer">
