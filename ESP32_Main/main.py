@@ -189,7 +189,6 @@ def web_page():
             <h1>ESP Web Server</h1>
             <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
 
-            <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
             <span><button class="button" onclick="controllLEDV2(true)">ON</button></span>
             <span><button class="button button2" onclick="controllLEDV2(false)">OFF</button></span>
             
