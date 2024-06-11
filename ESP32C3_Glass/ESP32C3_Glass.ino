@@ -58,6 +58,7 @@ std::tuple<String, String, String> getDHT11Data() {
         http.end();
         DynamicJsonDocument doc(1024);
         deserializeJson(doc, payload);
+
         double temp_f = doc["temp_f"];
         double hum = doc["hum"];
         double temp = doc["temp"];
@@ -82,9 +83,9 @@ void loop() {
     display.setTextSize(2);
     display.setCursor(0, 0);
     display.print(temp);
-    display.print(" C\n");
-    display.print(temp_f + " F\n");
-    display.print(hum + "% Hum");
+    display.println("  C");
+    display.println(temp_f + "  F");
+    display.println(hum + "% Hum");
     display.display();
 
     delay(2100);
