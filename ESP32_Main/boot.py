@@ -28,7 +28,7 @@ print('Wi-Fi 連接成功')
 print(station.ifconfig())
 print('------------------------------\n')
 
-led = Pin(13, Pin.OUT) # LED 腳位
+
 dht11 = dht.DHT11(Pin(14)) # 溫溼度感測器腳位
 red = PWM(Pin(25), freq=1000) # PWM LED 腳位
 green = PWM(Pin(26), freq=1000)

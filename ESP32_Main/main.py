@@ -5,10 +5,6 @@ from time import sleep
 import socket
 
 
-led = Pin(2, Pin.OUT)
-dht11 = dht.DHT11(Pin(14))
-
-
 '''    顯示網頁    '''
 def web_page():
     if led.value() == 1:
@@ -473,7 +469,3 @@ while True:
             print('timeout!')
             sleep(0.001) # 短暫休眠，等待 DHT11 恢復正常
             continue
-
-
-
-
