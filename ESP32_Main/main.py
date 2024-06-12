@@ -141,6 +141,16 @@ def web_page():
         .button:hover .emoji {
           filter: grayscale(0); /* hover時移除灰階 */
         }
+        
+        .button:hover {
+            background-color: #5E81AC; /* 改為 Nord Frost Blue */
+            color: #D8DEE9; /* 改為 Nord Snow Storm */
+        }
+
+        .button2:hover {
+            background-color: #BF616A; /* 改為 Nord Red */
+            color: #D8DEE9; /* 改為 Nord Snow Storm */
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -285,15 +295,15 @@ def web_page():
 
 <form id="ledForm">
     <div>
-        R <span class="value" id="redValue">0</span>
+        R <span class="value" id="redValue">512</span>
         <input type="range" min="0" max="1023" name="red" class="slider" id="redSlider" oninput="document.getElementById('redValue').innerText = this.value"><br>
     </div>
     <div>
-        G <span class="value" id="greenValue">0</span>
+        G <span class="value" id="greenValue">512</span>
         <input type="range" min="0" max="1023" name="green" class="slider" id="greenSlider" oninput="document.getElementById('greenValue').innerText = this.value"><br>
     </div>
     <div>
-        B <span class="value" id="blueValue">0</span>
+        B <span class="value" id="blueValue">512</span>
         <input type="range" min="0" max="1023" name="blue" class="slider" id="blueSlider" oninput="document.getElementById('blueValue').innerText = this.value"><br>
     </div>
 </form>
@@ -433,5 +443,7 @@ while True:
             print('timeout!')
             sleep(0.001) # 短暫休眠，等待 DHT11 恢復正常
             continue
+
+
 
 
