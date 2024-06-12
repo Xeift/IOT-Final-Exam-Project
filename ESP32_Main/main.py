@@ -57,6 +57,12 @@ def web_page():
             border: 2px solid #EBCB8B; /* 設定邊框顏色和厚度 */
             color: #EBCB8B; /* 改變文字顏色以搭配邊框 */
         }
+        .button4 {
+            background-color: transparent; /* 背景設為透明 */
+            border: 2px solid #A3BE8C; /* 設定邊框顏色和厚度 */
+            color: #A3BE8C; /* 改變文字顏色以搭配邊框 */
+        }
+
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -155,10 +161,19 @@ def web_page():
             background-color: #EBCB8B;
             color: #2E3440;
         }
+        
+        .button4:hover {
+            background-color: #A3BE8C;
+            color: #2E3440;
+        }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <script>
 
 
@@ -312,6 +327,33 @@ def web_page():
 
             controllLEDV2(true);
         }
+        
+        function exportToExcel() {
+            // 假設 tempData 和 humData 已經包含了溫度和溼度的歷史數據
+            let data = [];
+            for (let i = 0; i < labels.length; i++) {
+                data.push({
+                    '時間': labels[i].toLocaleString(),
+                    '溫度 (°C)': tempData[i],
+                    '溼度 (%)': humData[i]
+                });
+            }
+
+            let ws = XLSX.utils.json_to_sheet(data);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '歷史資料');
+
+            let wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
+            function s2ab(s) {
+                let buf = new ArrayBuffer(s.length);
+                let view = new Uint8Array(buf);
+                for (let i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+
+            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), '歷史資料.xlsx');
+        }
+
     </script>
 </head>
 <body>
@@ -321,6 +363,8 @@ def web_page():
         <span><button class="button" onclick="controllLEDV2(true)"><span class="emoji">💡</span></button></span>
         <span><button class="button button2" onclick="controllLEDV2(false)"><span class="emoji">💤</span></button></span>
         <span><button class="button button3" onclick="randomizeRGB()"><span class="emoji">🎲</span></button></span>
+        <span><button class="button button4" onclick="exportToExcel()"><span class="emoji">📊</span></button></span>
+</div>
     </div>
 
 <form id="ledForm">
