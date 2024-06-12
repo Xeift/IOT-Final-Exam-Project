@@ -128,15 +128,6 @@ def web_page():
         display: inline-block;
         width: 30px;
     }
-/* 數值標籤的樣式 */
-.bubble {
-    position: absolute;
-    color: black;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transform: translateX(-50%);
-}
-
 
 
         .icon {
@@ -156,31 +147,7 @@ def web_page():
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
     <script>
 
-document.addEventListener('DOMContentLoaded', function () {
-    var sliders = document.querySelectorAll('.slider');
-    sliders.forEach(function(slider) {
-        // 在滑塊上創建一個數值標籤
-        var valueBubble = document.createElement('span');
-        valueBubble.classList.add('bubble');
-        slider.parentNode.insertBefore(valueBubble, slider.nextSibling);
 
-        // 更新數值標籤的函數
-        function updateValueBubble(value, bubble) {
-            bubble.textContent = value; // 設置數值標籤的文本
-            var percent = (value - slider.min) / (slider.max - slider.min); // 計算位置百分比
-            var offsetX = percent * (slider.offsetWidth - bubble.offsetWidth); // 設置橫向位置
-            bubble.style.left = offsetX + 'px';
-        }
-
-        // 初始化數值標籤
-        updateValueBubble(slider.value, valueBubble);
-
-        // 當滑塊值改變時更新數值標籤
-        slider.addEventListener('input', function() {
-            updateValueBubble(slider.value, valueBubble);
-        });
-    });
-});
 
 
 
@@ -319,15 +286,15 @@ document.addEventListener('DOMContentLoaded', function () {
 <form id="ledForm">
     <div>
         R <span class="value" id="redValue">0</span>
-        <input type="range" min="0" max="1023" name="red" class="slider" id="redSlider"><br>
+        <input type="range" min="0" max="1023" name="red" class="slider" id="redSlider" oninput="document.getElementById('redValue').innerText = this.value"><br>
     </div>
     <div>
         G <span class="value" id="greenValue">0</span>
-        <input type="range" min="0" max="1023" name="green" class="slider" id="greenSlider"><br>
+        <input type="range" min="0" max="1023" name="green" class="slider" id="greenSlider" oninput="document.getElementById('greenValue').innerText = this.value"><br>
     </div>
     <div>
         B <span class="value" id="blueValue">0</span>
-        <input type="range" min="0" max="1023" name="blue" class="slider" id="blueSlider"><br>
+        <input type="range" min="0" max="1023" name="blue" class="slider" id="blueSlider" oninput="document.getElementById('blueValue').innerText = this.value"><br>
     </div>
 </form>
 
@@ -466,3 +433,5 @@ while True:
             print('timeout!')
             sleep(0.001) # 短暫休眠，等待 DHT11 恢復正常
             continue
+
+
