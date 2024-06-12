@@ -21,7 +21,7 @@ def web_page():
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>ESP Web Server</title>
+    <title>溫溼度即時控制面板</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/936236816141541408/1249975125290385408/itcnew.png?ex=6669418d&is=6667f00d&hm=2c49a94eabc06b8fffd954c7b1b273e1e623a8b8d04f5db0ac7c63e00da9f681&">
     <style>
@@ -42,10 +42,10 @@ def web_page():
         }
         .button {
             display: inline-block;
-            background-color: #5E81AC; /* Nord Frost */
-            border: none;
+            background-color: transparent; /* 背景設為透明 */
+            border: 2px solid #5E81AC; /* 設定邊框顏色和厚度 */
             border-radius: 4px;
-            color: #ECEFF4; /* Nord Snow Storm */
+            color: #5E81AC; /* 改變文字顏色以搭配邊框 */
             padding: 16px 40px;
             text-decoration: none;
             font-size: 30px;
@@ -53,8 +53,11 @@ def web_page():
             cursor: pointer;
         }
         .button2 {
-            background-color: #BF616A; /* Nord Red */
+            background-color: transparent; /* 背景設為透明 */
+            border: 2px solid #BF616A; /* 設定邊框顏色和厚度 */
+            color: #BF616A; /* 改變文字顏色以搭配邊框 */
         }
+
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -124,6 +127,13 @@ def web_page():
         .icon {
             margin-right: 10px;
             vertical-align: middle;
+        }
+        .button .emoji {
+          filter: grayscale(100%); /* emoji的初始灰階 */
+        }
+
+        .button:hover .emoji {
+          filter: grayscale(0); /* hover時移除灰階 */
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
@@ -254,23 +264,22 @@ def web_page():
     </script>
 </head>
 <body>
-    <h1>ESP Web Server</h1>
-    <p>GPIO state: <strong id="gpio_state">""" + str(gpio_state) + """</strong></p>
+    <h1>溫溼度即時控制面板</h1>
 
     <div>
-        <span><button class="button" onclick="controllLEDV2(true)"><img src="https://img.icons8.com/ios-filled/50/ffffff/light-on.png" class="icon">ON</button></span>
-        <span><button class="button button2" onclick="controllLEDV2(false)"><img src="https://img.icons8.com/ios-filled/50/ffffff/light-off.png" class="icon">OFF</button></span>
+        <span><button class="button" onclick="controllLEDV2(true)"><span class="emoji">💡</span></button></span>
+        <span><button class="button button2" onclick="controllLEDV2(false)"><span class="emoji">💤</span></button></span>
     </div>
 
     <form id="ledForm">
         <div>
-            R: <input type="range" min="0" max="1023" name="red" class="slider"><br>
+            R <input type="range" min="0" max="1023" name="red" class="slider"><br>
         </div>
         <div>
-            G: <input type="range" min="0" max="1023" name="green" class="slider"><br>
+            G <input type="range" min="0" max="1023" name="green" class="slider"><br>
         </div>
         <div>
-            B: <input type="range" min="0" max="1023" name="blue" class="slider"><br>
+            B <input type="range" min="0" max="1023" name="blue" class="slider"><br>
         </div>
     </form>
 
@@ -287,6 +296,11 @@ def web_page():
         <td>溼度</td>
         <td id="hum">""" + str(hum) + """ %</td>
     </tr>
+    <tr>
+        <td>LED狀態</td>
+        <td id="leddata">""" + str(gpio_state) + """</td>
+    </tr>
+
     </table>
     <div id="chartContainer">
         <div class="chart">
