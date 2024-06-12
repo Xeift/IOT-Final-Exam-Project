@@ -198,6 +198,10 @@ def web_page():
                 .catch(error => console.error('Error fetching data:', error));
         }
 
+        function updateLEDStatus(state) {
+            document.getElementById('leddata').innerText = state;
+        }
+
         function controllLEDV2(active) {
             var form = document.getElementById('ledForm');
             var formData = new FormData(form);
@@ -207,7 +211,7 @@ def web_page():
 
             if (!active) {
                 r = 0;
-                g = 0;
+                g = 0; 
                 b = 0;
             }
             console.log(r, g, b);
@@ -216,6 +220,7 @@ def web_page():
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
+                    updateLEDStatus(data.state); // 從伺服器回應中獲取 LED 狀態
                 })
                 .catch(error => console.error('Error controlling LED:', error));
         }
@@ -393,14 +398,19 @@ def api_response():
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
 
 
-'''    LED API 回應    '''
 def led_api_response(r, g, b):
     red.duty(r)
     green.duty(g)
     blue.duty(b)
+    
+    if r == 0 and g == 0 and b == 0:
+        state = "OFF"
+    else:
+        state = "ON"
 
     data = {
-        'Success': 'True'
+        'Success': 'True',
+        'state': state
     }
 
     return 'HTTP/1.1 200 OK\nContent-Type: application/json\nConnection: close\n\n' + json.dumps(data)
