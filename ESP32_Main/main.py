@@ -57,7 +57,11 @@ def web_page():
             border: 2px solid #BF616A; /* 設定邊框顏色和厚度 */
             color: #BF616A; /* 改變文字顏色以搭配邊框 */
         }
-
+        .button3 {
+            background-color: transparent; /* 背景設為透明 */
+            border: 2px solid #EBCB8B; /* 設定邊框顏色和厚度 */
+            color: #EBCB8B; /* 改變文字顏色以搭配邊框 */
+        }
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -150,6 +154,11 @@ def web_page():
         .button2:hover {
             background-color: #BF616A; /* 改為 Nord Red */
             color: #D8DEE9; /* 改為 Nord Snow Storm */
+        }
+
+        .button3:hover {
+            background-color: #EBCB8B;
+            color: #2E3440;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1"></script>
@@ -283,6 +292,26 @@ def web_page():
                 }
             });
         };
+        
+        function randomizeRGB() {
+            const redSlider = document.getElementById('redSlider');
+            const greenSlider = document.getElementById('greenSlider');
+            const blueSlider = document.getElementById('blueSlider');
+
+            const redValue = Math.floor(Math.random() * 1024);
+            const greenValue = Math.floor(Math.random() * 1024);
+            const blueValue = Math.floor(Math.random() * 1024);
+
+            redSlider.value = redValue;
+            greenSlider.value = greenValue;
+            blueSlider.value = blueValue;
+
+            document.getElementById('redValue').innerText = redValue;
+            document.getElementById('greenValue').innerText = greenValue;
+            document.getElementById('blueValue').innerText = blueValue;
+
+            controllLEDV2(true);
+        }
     </script>
 </head>
 <body>
@@ -291,6 +320,7 @@ def web_page():
     <div>
         <span><button class="button" onclick="controllLEDV2(true)"><span class="emoji">💡</span></button></span>
         <span><button class="button button2" onclick="controllLEDV2(false)"><span class="emoji">💤</span></button></span>
+        <span><button class="button button3" onclick="randomizeRGB()"><span class="emoji">🎲</span></button></span>
     </div>
 
 <form id="ledForm">
