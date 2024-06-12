@@ -7,10 +7,9 @@ import socket
 
 '''    顯示網頁    '''
 def web_page():
-    if led.value() == 1:
-        gpio_state = "ON"
-    else:
-        gpio_state = "OFF"
+    print(red, green, blue)
+    if red.duty() == 0 and green.duty() == 0 and blue.duty() == 0: gpio_state = "OFF"
+    else: gpio_state = "ON"
 
     html = """
 <!DOCTYPE html>
