@@ -88,6 +88,6 @@ void loop() {
     display.println(hum + "% Hum");
     display.display();
 
-    delay(2100);
+    delay(5000);
 }
 
