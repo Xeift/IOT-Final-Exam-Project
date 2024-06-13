@@ -18,4 +18,24 @@
 |  11 |  ✅ | 新增一個隨機按鈕，可以產生隨機的 RGB 組合 |
 |  12 |  ✅ | LED 狀態也改成即時更新，不需要再重新整理網頁才能刷新。|
 
+# 截圖
+Web 控制界面
+![Web.jpg](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Web.png)
 
+開發板實體接線圖
+![Board.jpg](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Board.jpg)
+
+眼鏡實體圖（近）
+![Glass.jpg](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Glass.jpg)
+
+眼鏡實體圖（遠）
+![Glass2.jpg](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Glass2.jpg)
+
+導出 Excel
+![Excel.jpg](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Excel.png)
+
+Arduino IDE
+![ArduinoIDE.png](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/ArduinoIDE.png)
+
+Thonny IDE
+![Thonny.png](https://github.com/Xeift/IOT-Final-Exam-Project/raw/main/images/Thonny.png)
